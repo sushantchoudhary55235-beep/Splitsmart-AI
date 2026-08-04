@@ -247,7 +247,7 @@ function Landing() {
                 </p>
               </div>
             </div>
-            <div className="absolute -bottom-6 -left-4 hidden w-56 rounded-2xl glass p-4 sm:block">
+            <div className="absolute -bottom-10 -left-6 hidden w-56 rounded-2xl glass-strong p-4 sm:block">
               <p className="text-xs text-muted-foreground">Friends owe you</p>
               <p className="text-xl font-bold text-primary">$1,520.50</p>
               <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-secondary">

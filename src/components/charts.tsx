@@ -39,7 +39,12 @@ export function MonthlyExpensesChart({ height = 240 }: { height?: number }) {
         <XAxis dataKey="month" {...axis} />
         <YAxis {...axis} width={44} tickFormatter={(v: number) => `$${v / 1000}k`} />
         <Tooltip cursor={{ fill: "var(--color-muted)", opacity: 0.4 }} {...tooltipStyle} />
-        <Bar dataKey="amount" radius={[10, 10, 6, 6]} fill="var(--color-chart-1)" />
+        <Bar
+          dataKey="amount"
+          radius={[10, 10, 6, 6]}
+          fill="var(--color-chart-1)"
+          isAnimationActive={false}
+        />
       </BarChart>
     </ResponsiveContainer>
   );
@@ -57,6 +62,7 @@ export function CategoryPieChart({ height = 240 }: { height?: number }) {
           outerRadius="86%"
           paddingAngle={3}
           stroke="none"
+          isAnimationActive={false}
         >
           {categorySpend.map((c) => (
             <Cell key={c.name} fill={c.color} />
@@ -95,6 +101,7 @@ export function WeeklyTrendChart({ height = 240 }: { height?: number }) {
           stroke="var(--color-chart-2)"
           strokeWidth={2.5}
           fill="url(#weeklyFill)"
+          isAnimationActive={false}
         />
       </AreaChart>
     </ResponsiveContainer>
