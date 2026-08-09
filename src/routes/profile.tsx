@@ -1,8 +1,10 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Bell, Camera, Globe, LogOut, Moon, ShieldCheck } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
+import { useAuth } from "@/lib/auth/auth-context";
+import { initialsOf } from "@/lib/auth/types";
 import { AppShell } from "@/components/app-shell";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -190,13 +192,15 @@ function ProfilePage() {
           </div>
 
           <Button
-            asChild
             variant="outline"
             className="h-11 w-full rounded-xl border-destructive/30 text-destructive hover:bg-destructive/10 hover:text-destructive"
           >
-            <Link to="/login">
-              <LogOut className="mr-1.5 h-4 w-4" /> Log out
-            </Link>
+            onClick={async () => {
+              await logout();
+              navigate({ to: "/login" });
+            }}
+          >
+            <LogOut className="mr-1.5 h-4 w-4" /> Log out
           </Button>
         </div>
       </div>
