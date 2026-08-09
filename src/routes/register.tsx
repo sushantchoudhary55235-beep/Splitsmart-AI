@@ -1,11 +1,14 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Apple, Chrome } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
 
 import { AuthLayout } from "@/components/auth-layout";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useAuth } from "@/lib/auth/auth-context";
 
 export const Route = createFileRoute("/register")({
   head: () => ({
@@ -26,6 +29,15 @@ export const Route = createFileRoute("/register")({
 });
 
 function RegisterPage() {
+  const [first, setFirst] = useState("");
+  const [last, setLast] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [agreed, setAgreed] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const { register } = useAuth();
+  const navigate = useNavigate();
+
   return (
     <AuthLayout
       title="Create your account"
@@ -39,26 +51,74 @@ function RegisterPage() {
         </>
       }
     >
-      <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
+      <form
+        className="space-y-4"
+        onSubmit={async (e) => {
+          e.preventDefault();
+          if (!agreed) {
+            toast.error("Please accept the Terms and Privacy Policy.");
+            return;
+          }
+          if (password.length < 8) {
+            toast.error("Password must be at least 8 characters.");
+            return;
+          }
+          setBusy(true);
+          try {
+            const fullName = `${first.trim()} ${last.trim()}`.trim();
+            await register({ fullName, email, password });
+            toast.success("Account created");
+            navigate({ to: "/dashboard" });
+          } catch (err) {
+            toast.error(err instanceof Error ? err.message : "Could not create account.");
+          } finally {
+            setBusy(false);
+          }
+        }}
+      >
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="grid gap-2">
             <Label htmlFor="first">First name</Label>
-            <Input id="first" placeholder="Maya" className="h-11 rounded-xl" />
+            <Input
+              id="first"
+              required
+              value={first}
+              onChange={(e) => setFirst(e.target.value)}
+              placeholder="Your first name"
+              className="h-11 rounded-xl"
+            />
           </div>
           <div className="grid gap-2">
             <Label htmlFor="last">Last name</Label>
-            <Input id="last" placeholder="Kapoor" className="h-11 rounded-xl" />
+            <Input
+              id="last"
+              value={last}
+              onChange={(e) => setLast(e.target.value)}
+              placeholder="Your last name"
+              className="h-11 rounded-xl"
+            />
           </div>
         </div>
         <div className="grid gap-2">
           <Label htmlFor="email">Email</Label>
-          <Input id="email" type="email" placeholder="you@example.com" className="h-11 rounded-xl" />
+          <Input
+            id="email"
+            type="email"
+            required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="you@example.com"
+            className="h-11 rounded-xl"
+          />
         </div>
         <div className="grid gap-2">
           <Label htmlFor="password">Password</Label>
           <Input
             id="password"
             type="password"
+            required
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             placeholder="At least 8 characters"
             className="h-11 rounded-xl"
           />
@@ -67,14 +127,19 @@ function RegisterPage() {
           </p>
         </div>
         <label className="flex items-start gap-2.5 text-sm text-muted-foreground">
-          <Checkbox id="terms" className="mt-0.5" />
+          <Checkbox
+            id="terms"
+            checked={agreed}
+            onCheckedChange={(v) => setAgreed(v === true)}
+            className="mt-0.5"
+          />
           <span>
             I agree to the <span className="font-medium text-foreground">Terms</span> and{" "}
             <span className="font-medium text-foreground">Privacy Policy</span>.
           </span>
         </label>
-        <Button asChild className="h-11 w-full rounded-xl">
-          <Link to="/dashboard">Create account</Link>
+        <Button type="submit" disabled={busy} className="h-11 w-full rounded-xl">
+          {busy ? "Creating account…" : "Create account"}
         </Button>
       </form>
 

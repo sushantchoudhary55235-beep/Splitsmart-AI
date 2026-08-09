@@ -1,4 +1,4 @@
-import { Link, useRouterState } from "@tanstack/react-router";
+import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import {
   LayoutDashboard,
   Users,
@@ -13,13 +13,15 @@ import {
   Search,
   Plus,
 } from "lucide-react";
-import type { ReactNode } from "react";
+import { useEffect, type ReactNode } from "react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Logo } from "@/components/logo";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/lib/auth/auth-context";
+import { initialsOf } from "@/lib/auth/types";
 
 const nav = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -47,6 +49,12 @@ export function AppShell({
   children: ReactNode;
 }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const { user, loading } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!loading && !user) navigate({ to: "/login" });
+  }, [loading, user, navigate]);
 
   return (
     <div className="page-canvas min-h-screen">
@@ -108,8 +116,10 @@ export function AppShell({
               <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-primary" />
             </Button>
             <Avatar className="h-9 w-9 ring-2 ring-primary/20">
-              <AvatarImage src="https://i.pravatar.cc/160?img=5" alt="Your avatar" />
-              <AvatarFallback>MK</AvatarFallback>
+              {user?.avatarUrl ? (
+                <AvatarImage src={user.avatarUrl} alt={user.fullName} />
+              ) : null}
+              <AvatarFallback>{initialsOf(user?.fullName ?? "")}</AvatarFallback>
             </Avatar>
           </div>
         </header>
