@@ -30,3 +30,15 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+
+# Database
+*.db
+
+# OS
+Thumbs.db
