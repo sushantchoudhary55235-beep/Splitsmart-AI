@@ -1,12 +1,14 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Apple, Chrome, Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
 
 import { AuthLayout } from "@/components/auth-layout";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useAuth } from "@/lib/auth/auth-context";
 
 export const Route = createFileRoute("/login")({
   head: () => ({
@@ -22,6 +24,11 @@ export const Route = createFileRoute("/login")({
 
 function LoginPage() {
   const [show, setShow] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [busy, setBusy] = useState(false);
+  const { login } = useAuth();
+  const navigate = useNavigate();
 
   return (
     <AuthLayout
@@ -38,13 +45,31 @@ function LoginPage() {
     >
       <form
         className="space-y-4"
-        onSubmit={(e) => {
+        onSubmit={async (e) => {
           e.preventDefault();
+          setBusy(true);
+          try {
+            const user = await login({ email, password });
+            toast.success(`Welcome back, ${user.fullName.split(" ")[0]}`);
+            navigate({ to: "/dashboard" });
+          } catch (err) {
+            toast.error(err instanceof Error ? err.message : "Could not log in.");
+          } finally {
+            setBusy(false);
+          }
         }}
       >
         <div className="grid gap-2">
           <Label htmlFor="email">Email</Label>
-          <Input id="email" type="email" placeholder="you@example.com" className="h-11 rounded-xl" />
+          <Input
+            id="email"
+            type="email"
+            required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="you@example.com"
+            className="h-11 rounded-xl"
+          />
         </div>
         <div className="grid gap-2">
           <Label htmlFor="password">Password</Label>
@@ -52,6 +77,9 @@ function LoginPage() {
             <Input
               id="password"
               type={show ? "text" : "password"}
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
               className="h-11 rounded-xl pr-11"
             />
@@ -73,8 +101,8 @@ function LoginPage() {
             Forgot password?
           </span>
         </div>
-        <Button asChild className="h-11 w-full rounded-xl">
-          <Link to="/dashboard">Log in</Link>
+        <Button type="submit" disabled={busy} className="h-11 w-full rounded-xl">
+          {busy ? "Logging in…" : "Log in"}
         </Button>
       </form>
 
