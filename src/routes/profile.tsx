@@ -35,6 +35,17 @@ export const Route = createFileRoute("/profile")({
 
 function ProfilePage() {
   const [dark, setDark] = useState(false);
+  const { user, updateProfile, logout } = useAuth();
+  const navigate = useNavigate();
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+
+  useEffect(() => {
+    if (user) {
+      setName(user.fullName);
+      setEmail(user.email);
+    }
+  }, [user]);
 
   useEffect(() => {
     document.documentElement.classList.toggle("dark", dark);
@@ -47,15 +58,17 @@ function ProfilePage() {
           <div className="flex flex-col items-center text-center">
             <div className="relative">
               <Avatar className="h-24 w-24 ring-4 ring-primary/15">
-                <AvatarImage src="https://i.pravatar.cc/240?img=5" alt="Maya Kapoor" />
-                <AvatarFallback>MK</AvatarFallback>
+                {user?.avatarUrl ? (
+                  <AvatarImage src={user.avatarUrl} alt={user.fullName} />
+                ) : null}
+                <AvatarFallback>{initialsOf(user?.fullName ?? "")}</AvatarFallback>
               </Avatar>
               <span className="absolute bottom-0 right-0 flex h-8 w-8 items-center justify-center rounded-full border-2 border-card bg-primary text-primary-foreground">
                 <Camera className="h-4 w-4" />
               </span>
             </div>
-            <h2 className="mt-4 text-lg font-bold">Maya Kapoor</h2>
-            <p className="text-sm text-muted-foreground">maya@splitsmart.ai · Premium member</p>
+            <h2 className="mt-4 text-lg font-bold">{user?.fullName ?? "—"}</h2>
+            <p className="text-sm text-muted-foreground">{user?.email ?? ""} · Premium member</p>
           </div>
 
           <div className="mt-6 grid grid-cols-3 gap-3 text-center">
@@ -89,15 +102,25 @@ function ProfilePage() {
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
               <div className="grid gap-2">
                 <Label htmlFor="pname">Full name</Label>
-                <Input id="pname" defaultValue="Maya Kapoor" className="h-11 rounded-xl" />
+                <Input
+                  id="pname"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="h-11 rounded-xl"
+                />
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="pemail">Email</Label>
-                <Input id="pemail" defaultValue="maya@splitsmart.ai" className="h-11 rounded-xl" />
+                <Input
+                  id="pemail"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="h-11 rounded-xl"
+                />
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="upi">UPI ID</Label>
-                <Input id="upi" defaultValue="maya@okhdfc" className="h-11 rounded-xl" />
+                <Input id="upi" placeholder="you@bank" className="h-11 rounded-xl" />
               </div>
               <div className="grid gap-2">
                 <Label className="flex items-center gap-1.5">
@@ -116,10 +139,21 @@ function ProfilePage() {
                 </Select>
               </div>
             </div>
-            <Button className="mt-5 rounded-xl" onClick={() => toast.success("Profile updated")}>
+            <Button
+              className="mt-5 rounded-xl"
+              onClick={async () => {
+                try {
+                  await updateProfile({ fullName: name, email: email.trim().toLowerCase() });
+                  toast.success("Profile updated");
+                } catch (err) {
+                  toast.error(err instanceof Error ? err.message : "Could not update profile.");
+                }
+              }}
+            >
               Save changes
             </Button>
           </div>
+
 
           <div className="glass rounded-2xl p-6">
             <h2 className="text-base font-semibold">Preferences</h2>
