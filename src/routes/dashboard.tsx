@@ -12,6 +12,8 @@ import {
   Wallet,
 } from "lucide-react";
 
+import { useAuth } from "@/lib/auth/auth-context";
+import { firstNameOf } from "@/lib/auth/types";
 import { AppShell } from "@/components/app-shell";
 import { CategoryPieChart, MonthlyExpensesChart, WeeklyTrendChart } from "@/components/charts";
 import { StatCard } from "@/components/stat-card";
@@ -49,9 +51,12 @@ const toneMap = {
 } as const;
 
 function Dashboard() {
+  const { user } = useAuth();
+  const firstName = firstNameOf(user?.fullName ?? "");
+
   return (
     <AppShell
-      title="Good morning, Maya"
+      title={firstName ? `Good morning, ${firstName}` : "Good morning"}
       subtitle="You have 3 pending settlements and 2 new expenses since yesterday."
       actions={
         <Button asChild className="rounded-xl">

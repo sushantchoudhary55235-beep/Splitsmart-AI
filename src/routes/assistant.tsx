@@ -2,6 +2,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { ArrowUp, Bot } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
+import { useAuth } from "@/lib/auth/auth-context";
+import { firstNameOf, initialsOf } from "@/lib/auth/types";
 import { AppShell } from "@/components/app-shell";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -47,11 +49,13 @@ const fallback =
   "Here's what I found: your balances are net positive at $707.85. Three settlements are pending, and clearing Daniel first removes two chained debts across Lisbon Trip and Apartment 12B.";
 
 function AssistantPage() {
+  const { user } = useAuth();
+  const firstName = firstNameOf(user?.fullName ?? "");
   const [messages, setMessages] = useState<Msg[]>([
     {
       id: "m0",
       role: "assistant",
-      text: "Hi Maya — I've read all 128 of your expenses. Ask me about balances, categories or the fastest way to settle a group.",
+      text: `Hi${firstName ? ` ${firstName}` : ""} — I've read all 128 of your expenses. Ask me about balances, categories or the fastest way to settle a group.`,
     },
   ]);
   const [input, setInput] = useState("");
@@ -113,8 +117,8 @@ function AssistantPage() {
               </div>
               {m.role === "user" && (
                 <Avatar className="h-8 w-8 shrink-0">
-                  <AvatarImage src="https://i.pravatar.cc/160?img=5" alt="You" />
-                  <AvatarFallback>MK</AvatarFallback>
+                  {user?.avatarUrl ? <AvatarImage src={user.avatarUrl} alt={user.fullName} /> : null}
+                  <AvatarFallback>{initialsOf(user?.fullName ?? "")}</AvatarFallback>
                 </Avatar>
               )}
             </div>
