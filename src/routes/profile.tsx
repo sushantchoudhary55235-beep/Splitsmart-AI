@@ -194,7 +194,6 @@ function ProfilePage() {
           <Button
             variant="outline"
             className="h-11 w-full rounded-xl border-destructive/30 text-destructive hover:bg-destructive/10 hover:text-destructive"
-          >
             onClick={async () => {
               await logout();
               navigate({ to: "/login" });
