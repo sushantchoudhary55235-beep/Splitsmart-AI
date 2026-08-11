@@ -1,15 +1,17 @@
 from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
 from pwdlib import PasswordHash
+from jose import jwt
 
 from database import SessionLocal
 from models import User
-from schemas import UserCreate, UserResponse
-
+from schemas import UserCreate, UserResponse, UserLogin
 
 app = FastAPI()
 
 password_hash = PasswordHash.recommended()
+SECRET_KEY = "splitsmart-secret-key-change-later"
+ALGORITHM = "HS256"
 
 
 def get_db():
@@ -59,3 +61,44 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
     db.refresh(new_user)
 
     return new_user
+
+@app.post("/login")
+def login(user: UserLogin, db: Session = Depends(get_db)):
+
+    existing_user = db.query(User).filter(
+        User.email == user.email
+    ).first()
+
+    if not existing_user:
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid email or password"
+        )
+
+    if not password_hash.verify(
+        user.password,
+        existing_user.password
+    ):
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid email or password"
+        )
+
+    token = jwt.encode(
+        {
+            "user_id": existing_user.id,
+            "email": existing_user.email
+        },
+        SECRET_KEY,
+        algorithm=ALGORITHM
+    )
+
+    return {
+        "message": "Login successful",
+        "access_token": token,
+        "user": {
+            "id": existing_user.id,
+            "name": existing_user.name,
+            "email": existing_user.email
+        }
+    }
