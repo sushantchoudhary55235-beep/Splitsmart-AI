@@ -29,5 +29,7 @@ class Expense(Base):
     amount = Column(Float, nullable=False)
 
     payer_id = Column(Integer, ForeignKey("users.id"))
+    group_id = Column(Integer, ForeignKey("groups.id"))
 
     payer = relationship("User", back_populates="expenses")
+    group = relationship("Group")

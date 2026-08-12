@@ -18,4 +18,29 @@ class UserLogin(BaseModel):
     email: EmailStr
     password: str
 
-    
+class GroupCreate(BaseModel):
+    name: str
+
+
+class GroupResponse(BaseModel):
+    id: int
+    name: str
+
+    class Config:
+        from_attributes = True
+
+class ExpenseCreate(BaseModel):
+    description: str
+    amount: float
+    group_id:int
+
+
+class ExpenseResponse(BaseModel):
+    id: int
+    description: str
+    amount: float
+    payer_id: int | None
+    group_id: int | None
+
+    class Config:
+        from_attributes = True
