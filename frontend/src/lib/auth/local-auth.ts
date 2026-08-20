@@ -1,5 +1,5 @@
 import type { AuthProviderApi, AuthUser, Credentials, RegisterInput } from "./types";
-
+import { generateId } from "@/lib/utils";
 const USERS_KEY = "splitsmart.users";
 const SESSION_KEY = "splitsmart.session";
 
@@ -33,7 +33,7 @@ export const localAuth: AuthProviderApi = {
       throw new Error("An account with this email already exists.");
     }
     const user: StoredUser = {
-      id: crypto.randomUUID(),
+      id: generateId(),
       fullName: fullName.trim(),
       email: normalized,
       avatarUrl: null,

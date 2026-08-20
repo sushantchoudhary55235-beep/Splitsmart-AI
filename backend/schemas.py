@@ -44,3 +44,30 @@ class ExpenseResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+class GroupMemberCreate(BaseModel):
+    user_id: int
+    group_id: int
+
+
+class GroupMemberResponse(BaseModel):
+    id: int
+    user_id: int
+    group_id: int
+
+    class Config:
+        from_attributes = True
+
+class ExpenseParticipantCreate(BaseModel):
+    user_id: int
+    share: float
+
+
+class ExpenseParticipantResponse(BaseModel):
+    id: int
+    expense_id: int
+    user_id: int
+    share: float
+
+    class Config:
+        from_attributes = True
