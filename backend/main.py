@@ -400,10 +400,7 @@ def update_expense_participant(
 
     return existing_participant
 
-@app.put(
-    "/expenses/{expense_id}/participants/{participant_id}",
-    response_model=ExpenseParticipantResponse
-)
+
 @app.get("/groups/{group_id}/balances")
 def get_group_balances(
     group_id: int,
